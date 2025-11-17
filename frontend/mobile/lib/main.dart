@@ -7,7 +7,7 @@ void main() {
 }
 
 class IKhayaHealthApp extends StatelessWidget {
-  const IKhayaHealthApp({Key? key}) : super(key: key);
+  const IKhayaHealthApp({super.key});
 
   @override
   Widget build(BuildContext context) {
