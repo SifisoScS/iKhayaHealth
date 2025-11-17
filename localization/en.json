@@ -1,0 +1,20 @@
+{
+  "app_name": "iKhaya Health",
+  "welcome": "Welcome",
+  "patients": "Patients",
+  "add_patient": "Add Patient",
+  "search": "Search",
+  "sync": "Sync",
+  "settings": "Settings",
+  "first_name": "First Name",
+  "last_name": "Last Name",
+  "id_number": "ID Number",
+  "date_of_birth": "Date of Birth",
+  "gender": "Gender",
+  "male": "Male",
+  "female": "Female",
+  "save": "Save",
+  "cancel": "Cancel",
+  "offline_mode": "Offline Mode",
+  "last_synced": "Last Synced"
+}

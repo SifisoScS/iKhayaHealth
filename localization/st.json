@@ -1,0 +1,20 @@
+{
+  "app_name": "iKhaya Health",
+  "welcome": "Rea o amohela",
+  "patients": "Bakuli",
+  "add_patient": "Eketsa Mokuli",
+  "search": "Batla",
+  "sync": "Sync",
+  "settings": "Ditlhophiso",
+  "first_name": "Lebitso la Pele",
+  "last_name": "Fane",
+  "id_number": "Nomoro ya ID",
+  "date_of_birth": "Letsatsi la Tsoalo",
+  "gender": "Bong",
+  "male": "Monna",
+  "female": "Mosadi",
+  "save": "Boloka",
+  "cancel": "Hlakola",
+  "offline_mode": "Mokgwa wa Offline",
+  "last_synced": "E Synchronized Qetellong"
+}

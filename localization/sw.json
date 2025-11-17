@@ -1,0 +1,20 @@
+{
+  "app_name": "iKhaya Health",
+  "welcome": "Karibu",
+  "patients": "Wagonjwa",
+  "add_patient": "Ongeza Mgonjwa",
+  "search": "Tafuta",
+  "sync": "Sawazisha",
+  "settings": "Mipangilio",
+  "first_name": "Jina la Kwanza",
+  "last_name": "Jina la Ukoo",
+  "id_number": "Nambari ya Kitambulisho",
+  "date_of_birth": "Tarehe ya Kuzaliwa",
+  "gender": "Jinsia",
+  "male": "Mwanaume",
+  "female": "Mwanamke",
+  "save": "Hifadhi",
+  "cancel": "Ghairi",
+  "offline_mode": "Hali ya Nje ya Mtandao",
+  "last_synced": "Imesawazishwa Mwisho"
+}

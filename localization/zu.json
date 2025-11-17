@@ -1,0 +1,20 @@
+{
+  "app_name": "iKhaya Health",
+  "welcome": "Siyakwamukela",
+  "patients": "Iziguli",
+  "add_patient": "Engeza Isiguli",
+  "search": "Sesha",
+  "sync": "Vumelanisa",
+  "settings": "Izilungiselelo",
+  "first_name": "Igama Lokuqala",
+  "last_name": "Isibongo",
+  "id_number": "Inombolo Yesazisi",
+  "date_of_birth": "Usuku Lokuzalwa",
+  "gender": "Ubulili",
+  "male": "Owesilisa",
+  "female": "Owesifazane",
+  "save": "Gcina",
+  "cancel": "Khansela",
+  "offline_mode": "Imodi Engaxhunyiwe",
+  "last_synced": "Ivumelaniswe Ngokugcina"
+}

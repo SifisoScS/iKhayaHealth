@@ -1,0 +1,44 @@
+{
+  "name": "ikhaya-health-desktop",
+  "version": "1.0.0",
+  "description": "iKhaya Health Desktop Application",
+  "main": "electron.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "package": "electron-builder"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "electron-store": "^8.1.0",
+    "better-sqlite3": "^9.2.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0",
+    "concurrently": "^8.2.0",
+    "wait-on": "^7.2.0",
+    "react-scripts": "5.0.1"
+  },
+  "build": {
+    "appId": "com.ikhaya.health",
+    "productName": "iKhaya Health",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
