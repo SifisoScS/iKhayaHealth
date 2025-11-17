@@ -24,5 +24,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(🏥 iKhaya Health API running on port );
+  console.log(`🏥 iKhaya Health API running on port ${PORT}`);
 });
