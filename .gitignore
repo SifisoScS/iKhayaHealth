@@ -1,11 +1,22 @@
-# Dependencies
+# =====================================================
+# iKhayaHealth - Complete .gitignore
+# =====================================================
+
+# =====================================================
+# BACKEND (Node.js)
+# =====================================================
 node_modules/
 .pnp
 .pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+package-lock.json
 
 # Testing
 coverage/
-*.log
+.nyc_output
 
 # Production
 build/
@@ -15,77 +26,337 @@ dist/
 .env
 .env.local
 .env.production
+.env.test
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# =====================================================
+# FRONTEND - FLUTTER/DART
+# =====================================================
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Flutter
+# Flutter/Dart/Pub related
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
+
+# Build outputs
 build/
-*.iml
+.flutter-build/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle/wrapper/gradle-wrapper.jar
 
-# Electron
-out/
-.webpack/
+# Flutter ephemeral files
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/ios/Flutter/ephemeral/
 
-# Database
+# Flutter generated files
+**/lib/generated_plugin_registrant.dart
+**/.flutter-plugins-dependencies
+**/.flutter-plugins
+
+# Desktop build outputs
+**/windows/build/
+**/linux/build/
+**/macos/build/
+
+# =====================================================
+# DATABASE FILES (SQLite)
+# =====================================================
 *.db
+*.db-journal
+*.db-wal
+*.db-shm
 *.sqlite
 *.sqlite3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 
-# Logs
+# Database backups
+backups/*.db
+backups/*.sqlite
+
+# =====================================================
+# IDE & EDITORS
+# =====================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/misc.xml
+.idea/deploymentTargetDropDown.xml
+.idea/render.experimental.xml
+.idea/jarRepositories.xml
+
+# Eclipse
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# =====================================================
+# OPERATING SYSTEM FILES
+# =====================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =====================================================
+# LOGS & TEMPORARY FILES
+# =====================================================
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 audit.log
+debug.log
+crash.log
 
-# Temporary
+# Temporary files
 tmp/
 temp/
+*.tmp
+.temp/
+
+# =====================================================
+# ANDROID SPECIFIC
+# =====================================================
 
 # Gradle files
 .gradle/
-build/
+**/android/.gradle/
+gradle-app.setting
 
-# Local configuration file (sdk path, etc)
+# Local configuration
 local.properties
 
-# Log/OS Files
-*.log
-
-# Android Studio generated files and folders
+# Android Studio generated files
 captures/
 .externalNativeBuild/
 .cxx/
+
+# Android build outputs
 *.aab
 *.apk
 output-metadata.json
+*.ap_
+*.dex
+*.class
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+# ProGuard
+proguard/
 
-# Keystore files
+# Keystore files (IMPORTANT: Never commit!)
 *.jks
 *.keystore
+key.properties
+keystore.properties
 
-# Google Services (e.g. APIs or Firebase)
+# Google Services (API keys)
 google-services.json
+GoogleService-Info.plist
 
 # Android Profiling
 *.hprof
+
+# =====================================================
+# IOS SPECIFIC
+# =====================================================
+
+# Xcode
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcworkspace/xcshareddata
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# =====================================================
+# ELECTRON (Desktop App)
+# =====================================================
+out/
+.webpack/
+dist/
+*.asar
+
+# =====================================================
+# SECURITY & SENSITIVE DATA
+# =====================================================
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# API Keys
+**/secrets/
+**/credentials/
+api_keys.json
+firebase_config.json
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# Encryption keys
+encryption_keys/
+*.key
+
+# =====================================================
+# TESTING & CI/CD
+# =====================================================
+coverage/
+.nyc_output
+test-results/
+junit.xml
+*.lcov
+
+# Jest
+jest_*
+.jest-cache/
+
+# =====================================================
+# DOCUMENTATION BUILDS
+# =====================================================
+docs/_build/
+site/
+.docusaurus/
+
+# =====================================================
+# BACKUP FILES
+# =====================================================
+*.backup
+*.old
+*.orig
+*.bak
+*~
+
+# =====================================================
+# MISCELLANEOUS
+# =====================================================
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Generated files
+generated/
+auto-generated/
+
+# Cache
+.cache/
+*.cache
+
+# Lock files (optional - uncomment if you want to ignore)
+# yarn.lock
+# package-lock.json
+# pubspec.lock
+
+# =====================================================
+# PROJECT-SPECIFIC (iKhayaHealth)
+# =====================================================
+
+# Patient photos (should be in cloud storage, not git)
+**/patient_photos/
+**/uploads/
+
+# Sample/test data
+**/sample_data/*.db
+**/test_data/*.sqlite
+
+# Reports and exports
+exports/
+reports/*.pdf
+reports/*.csv
+
+# Migration backups
+**/migrations/backups/
+
+# =====================================================
+# END OF .gitignore
+# =====================================================
