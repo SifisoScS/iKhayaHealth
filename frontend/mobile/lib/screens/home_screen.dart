@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'patients_screen.dart';
 import 'dart:ui' as ui;
 
 void main() {
@@ -34,6 +35,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  bool isOnline = false; // This will be connected to real connectivity later
+  
+  // Mock stats - will be replaced with real data
+  int todayPatients = 12;
+  int queueCount = 5;
+  int totalPatients = 248;
 
   @override
   void initState() {
@@ -64,10 +71,10 @@ class _HomeScreenState extends State<HomeScreen>
               elevation: 0,
               centerTitle: true,
               title: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
+                shaderCallback: (bounds) => const LinearGradient(
                   colors: [
-                    const Color(0xFF00D9FF),
-                    const Color(0xFF00F5A0),
+                    Color(0xFF00D9FF),
+                    Color(0xFF00F5A0),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -83,7 +90,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
               actions: [
-                // Settings Icon in AppBar
+                // Connection Status Indicator
+                _buildConnectionStatus(),
+                
+                // Settings Icon
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Center(
@@ -116,19 +126,14 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                 ),
-                // Sync Icon in AppBar
+                
+                // Sync Icon
                 Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Center(
                     child: GestureDetector(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('🔄 Sync started...'),
-                            duration: Duration(seconds: 2),
-                            backgroundColor: Color(0xFF00D9FF),
-                          ),
-                        );
+                        _performSync();
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -157,16 +162,16 @@ class _HomeScreenState extends State<HomeScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF0a0e27),
-              const Color(0xFF1a1f3a),
-              const Color(0xFF0f1628),
+              Color(0xFF0a0e27),
+              Color(0xFF1a1f3a),
+              Color(0xFF0f1628),
             ],
-            stops: const [0.0, 0.5, 1.0],
+            stops: [0.0, 0.5, 1.0],
           ),
         ),
         child: Stack(
@@ -244,10 +249,10 @@ class _HomeScreenState extends State<HomeScreen>
                         height: 120,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [
-                              const Color(0xFF00D9FF),
-                              const Color(0xFF00F5A0),
+                              Color(0xFF00D9FF),
+                              Color(0xFF00F5A0),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -271,10 +276,10 @@ class _HomeScreenState extends State<HomeScreen>
 
                       // Main Heading
                       ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
+                        shaderCallback: (bounds) => const LinearGradient(
                           colors: [
-                            const Color(0xFF00D9FF),
-                            const Color(0xFF00F5A0),
+                            Color(0xFF00D9FF),
+                            Color(0xFF00F5A0),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -306,9 +311,14 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
 
-                      const SizedBox(height: 50),
+                      const SizedBox(height: 30),
 
-                      // UPDATED FEATURE CARDS
+                      // Quick Stats Card
+                      _buildQuickStatsCard(),
+
+                      const SizedBox(height: 30),
+
+                      // Feature Cards
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -322,43 +332,62 @@ class _HomeScreenState extends State<HomeScreen>
                                   icon: Icons.people,
                                   label: 'Patients',
                                   color: const Color(0xFF00D9FF),
-                                  onTap: () {},
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const PatientsScreen(),
+                                      ),
+                                    );
+                                  },
                                 ),
                                 _buildFeatureCard(
                                   icon: Icons.groups,
                                   label: 'Staff',
                                   color: const Color(0xFF00F5A0),
-                                  onTap: () {},
+                                  onTap: () {
+                                    _showComingSoon('Staff Management');
+                                  },
                                 ),
                                 _buildFeatureCard(
                                   icon: Icons.queue,
                                   label: 'Queue',
                                   color: const Color(0xFF9C27B0),
-                                  onTap: () {},
+                                  onTap: () {
+                                    _showComingSoon('Patient Queue');
+                                  },
                                 ),
                                 _buildFeatureCard(
                                   icon: Icons.app_registration,
                                   label: 'Quick Register',
                                   color: const Color(0xFFFF5722),
-                                  onTap: () {},
+                                  onTap: () {
+                                    _showComingSoon('Quick Registration');
+                                  },
                                 ),
                                 _buildFeatureCard(
                                   icon: Icons.sync,
                                   label: 'Sync Status',
                                   color: const Color(0xFF4CAF50),
-                                  onTap: () {},
+                                  onTap: () {
+                                    _showSyncStatus();
+                                  },
                                 ),
                                 _buildFeatureCard(
                                   icon: Icons.inventory,
                                   label: 'Inventory',
                                   color: const Color(0xFFFFC107),
-                                  onTap: () {},
+                                  onTap: () {
+                                    _showComingSoon('Inventory Management');
+                                  },
                                 ),
                                 _buildFeatureCard(
                                   icon: Icons.bar_chart,
                                   label: 'Reports',
                                   color: const Color(0xFFFF006E),
-                                  onTap: () {},
+                                  onTap: () {
+                                    _showComingSoon('Analytics & Reports');
+                                  },
                                 ),
                               ],
                             ),
@@ -390,13 +419,7 @@ class _HomeScreenState extends State<HomeScreen>
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('🌍 Language options available'),
-                                  duration: Duration(seconds: 2),
-                                  backgroundColor: Color(0xFF00F5A0),
-                                ),
-                              );
+                              _showLanguageDialog();
                             },
                             borderRadius: BorderRadius.circular(16),
                             child: Padding(
@@ -415,10 +438,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   const SizedBox(width: 12),
                                   ShaderMask(
                                     shaderCallback: (bounds) =>
-                                        LinearGradient(
+                                        const LinearGradient(
                                       colors: [
-                                        const Color(0xFF00D9FF),
-                                        const Color(0xFF00F5A0),
+                                        Color(0xFF00D9FF),
+                                        Color(0xFF00F5A0),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -497,13 +520,102 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  // Connection Status Widget
+  Widget _buildConnectionStatus() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: (isOnline ? Colors.green : Colors.orange).withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: (isOnline ? Colors.green : Colors.orange).withOpacity(0.5),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isOnline ? Icons.cloud_done : Icons.cloud_off,
+              color: isOnline ? Colors.green : Colors.orange,
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              isOnline ? 'Online' : 'Offline',
+              style: TextStyle(
+                color: isOnline ? Colors.green : Colors.orange,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Quick Stats Card
+  Widget _buildQuickStatsCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF00D9FF).withOpacity(0.15),
+            const Color(0xFF00F5A0).withOpacity(0.1),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF00D9FF).withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatItem('Today', todayPatients.toString(), Icons.person_add),
+          _buildStatItem('Queue', queueCount.toString(), Icons.hourglass_empty),
+          _buildStatItem('Total', totalPatients.toString(), Icons.people),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: const Color(0xFF00D9FF), size: 24),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white.withOpacity(0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Feature Card Widget
   Widget _buildFeatureCard({
     required IconData icon,
     required String label,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return Container(
+    return SizedBox(
       width: 150,
       height: 120,
       child: GestureDetector(
@@ -517,7 +629,7 @@ class _HomeScreenState extends State<HomeScreen>
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-          ),
+            ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: color.withOpacity(0.4),
@@ -559,7 +671,7 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 12),
                   Text(
                     label,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -572,6 +684,177 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
       ),
+    );
+  }
+
+  // Helper Methods
+  void _showComingSoon(String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('🚀 $feature - Coming Soon!'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: const Color(0xFF00D9FF),
+      ),
+    );
+  }
+
+  void _performSync() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(isOnline 
+              ? '🔄 Syncing data with server...' 
+              : '⚠️ No internet connection. Data will sync when online.'),
+          ],
+        ),
+        duration: const Duration(seconds: 3),
+        backgroundColor: const Color(0xFF00D9FF),
+      ),
+    );
+  }
+
+  void _showSyncStatus() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1a1f3a),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: const Color(0xFF00D9FF).withOpacity(0.3),
+            width: 1.5,
+          ),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              isOnline ? Icons.cloud_done : Icons.cloud_off,
+              color: isOnline ? Colors.green : Colors.orange,
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Sync Status',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSyncStatusItem('Connection', isOnline ? 'Online' : 'Offline', isOnline),
+            _buildSyncStatusItem('Last Sync', '2 hours ago', true),
+            _buildSyncStatusItem('Pending Changes', '0 items', true),
+            _buildSyncStatusItem('Next Sync', isOnline ? 'In progress...' : 'When online', isOnline),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close', style: TextStyle(color: Color(0xFF00D9FF))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSyncStatusItem(String label, String value, bool isGood) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: isGood ? Colors.green : Colors.orange,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1a1f3a),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: const Color(0xFF00D9FF).withOpacity(0.3),
+            width: 1.5,
+          ),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.language, color: Color(0xFF00D9FF)),
+            SizedBox(width: 12),
+            Text('Select Language', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLanguageOption('🇬🇧', 'English', true),
+            _buildLanguageOption('🇿🇦', 'isiZulu', false),
+            _buildLanguageOption('🇿🇦', 'Sesotho', false),
+            _buildLanguageOption('🇰🇪', 'Swahili', false),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close', style: TextStyle(color: Color(0xFF00D9FF))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption(String flag, String language, bool isSelected) {
+    return ListTile(
+      leading: Text(flag, style: const TextStyle(fontSize: 24)),
+      title: Text(
+        language,
+        style: TextStyle(
+          color: isSelected ? const Color(0xFF00D9FF) : Colors.white,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check_circle, color: Color(0xFF00D9FF))
+          : null,
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Language changed to $language'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: const Color(0xFF00F5A0),
+          ),
+        );
+        Navigator.pop(context);
+      },
     );
   }
 }
