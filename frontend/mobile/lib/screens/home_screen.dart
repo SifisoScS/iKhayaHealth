@@ -1,29 +1,8 @@
+// frontend/mobile/lib/screens/home_screen.dart
+// MediConnect AI - Clean White Professional Design
+
 import 'package:flutter/material.dart';
 import 'patients_screen.dart';
-import 'dart:ui' as ui;
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'iKhaya Health',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00D9FF),
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: const HomeScreen(),
-    );
-  }
-}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,485 +11,186 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  bool isOnline = false; // This will be connected to real connectivity later
-  
-  // Mock stats - will be replaced with real data
-  int todayPatients = 12;
-  int queueCount = 5;
-  int totalPatients = 248;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(seconds: 3),
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: ClipRRect(
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: AppBar(
-              backgroundColor: Colors.black.withOpacity(0.3),
-              elevation: 0,
-              centerTitle: true,
-              title: ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [
-                    Color(0xFF00D9FF),
-                    Color(0xFF00F5A0),
+      backgroundColor: const Color(0xFFF9FAFB), // Sterile gray background
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Section
+              _buildHeader(context),
+              
+              // Hero Section
+              _buildHeroSection(context),
+              
+              // Why MediConnect AI Section
+              _buildWhySection(context),
+              
+              // Quick Access Cards
+              _buildQuickAccessGrid(context),
+              
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Header with Navigation
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0066CC), // Primary blue
+            Color(0xFF1E90FF), // Medical blue
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Top Navigation
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Logo
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.health_and_safety,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'MediConnect AI',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: const Text(
-                  '🏥 iKhaya Health',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
-                  ),
                 ),
-              ),
-              actions: [
-                // Connection Status Indicator
-                _buildConnectionStatus(),
-                
                 // Settings Icon
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('⚙️ Settings opened'),
-                            duration: Duration(seconds: 2),
-                            backgroundColor: Color(0xFFFFA500),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFA500).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFFFA500).withOpacity(0.5),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.settings,
-                          color: Color(0xFFFFA500),
-                          size: 20,
-                        ),
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('⚙️ Settings - Coming Soon'),
+                        backgroundColor: Color(0xFF0066CC),
                       ),
-                    ),
-                  ),
-                ),
-                
-                // Sync Icon
-                Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        _performSync();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00D9FF).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFF00D9FF).withOpacity(0.5),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.sync,
-                          color: Color(0xFF00D9FF),
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0a0e27),
-              Color(0xFF1a1f3a),
-              Color(0xFF0f1628),
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Animated Background Orbs
-            Positioned(
-              top: -100,
-              right: -100,
-              child: AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(
-                      50 * (1 - _animationController.value),
-                      50 * _animationController.value,
-                    ),
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFF00D9FF).withOpacity(0.3),
-                            const Color(0xFF00D9FF).withOpacity(0.0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+            
+            const SizedBox(height: 30),
+            
+            // Title & Subtitle
+            const Text(
+              'Welcome to MediConnect AI',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                height: 1.2,
               ),
             ),
-            Positioned(
-              bottom: -150,
-              left: -150,
-              child: AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(
-                      -50 * _animationController.value,
-                      -50 * (1 - _animationController.value),
-                    ),
-                    child: Container(
-                      width: 400,
-                      height: 400,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFF00F5A0).withOpacity(0.2),
-                            const Color(0xFF00F5A0).withOpacity(0.0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+            const SizedBox(height: 12),
+            Text(
+              'Revolutionizing healthcare with AI diagnostics\nand community-driven support',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white.withOpacity(0.9),
+                height: 1.5,
               ),
             ),
-
-            // Main Content
-            SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
-
-                      // Hero Icon with Glow
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF00D9FF),
-                              Color(0xFF00F5A0),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF00D9FF).withOpacity(0.5),
-                              blurRadius: 30,
-                              spreadRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.health_and_safety,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // Main Heading
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [
-                            Color(0xFF00D9FF),
-                            Color(0xFF00F5A0),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: const Text(
-                          'Welcome to iKhaya Health',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Subtitle
-                      Text(
-                        'Offline-first healthcare for rural clinics\nBringing quality care to every corner',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.7),
-                          height: 1.6,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      // Quick Stats Card
-                      _buildQuickStatsCard(),
-
-                      const SizedBox(height: 30),
-
-                      // Feature Cards
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Wrap(
-                              alignment: WrapAlignment.center,
-                              spacing: 16,
-                              runSpacing: 16,
-                              children: [
-                                _buildFeatureCard(
-                                  icon: Icons.people,
-                                  label: 'Patients',
-                                  color: const Color(0xFF00D9FF),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const PatientsScreen(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.groups,
-                                  label: 'Staff',
-                                  color: const Color(0xFF00F5A0),
-                                  onTap: () {
-                                    _showComingSoon('Staff Management');
-                                  },
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.queue,
-                                  label: 'Queue',
-                                  color: const Color(0xFF9C27B0),
-                                  onTap: () {
-                                    _showComingSoon('Patient Queue');
-                                  },
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.app_registration,
-                                  label: 'Quick Register',
-                                  color: const Color(0xFFFF5722),
-                                  onTap: () {
-                                    _showComingSoon('Quick Registration');
-                                  },
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.sync,
-                                  label: 'Sync Status',
-                                  color: const Color(0xFF4CAF50),
-                                  onTap: () {
-                                    _showSyncStatus();
-                                  },
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.inventory,
-                                  label: 'Inventory',
-                                  color: const Color(0xFFFFC107),
-                                  onTap: () {
-                                    _showComingSoon('Inventory Management');
-                                  },
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.bar_chart,
-                                  label: 'Reports',
-                                  color: const Color(0xFFFF006E),
-                                  onTap: () {
-                                    _showComingSoon('Analytics & Reports');
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // Language Toggle Button
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              const Color(0xFF00D9FF).withOpacity(0.15),
-                              const Color(0xFF00F5A0).withOpacity(0.1),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFF00D9FF).withOpacity(0.3),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {
-                              _showLanguageDialog();
-                            },
-                            borderRadius: BorderRadius.circular(16),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.language,
-                                    color: Color(0xFF00D9FF),
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  ShaderMask(
-                                    shaderCallback: (bounds) =>
-                                        const LinearGradient(
-                                      colors: [
-                                        Color(0xFF00D9FF),
-                                        Color(0xFF00F5A0),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds),
-                                    child: const Text(
-                                      '🌍 Change Language',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        letterSpacing: 0.3,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // Footer Info
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              const Color(0xFF00D9FF).withOpacity(0.08),
-                              const Color(0xFF00F5A0).withOpacity(0.05),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFF00D9FF).withOpacity(0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              'Empowering Rural Healthcare',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withOpacity(0.8),
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Offline-first technology for clinics without reliable internet',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.white.withOpacity(0.6),
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 40),
-                    ],
+            const SizedBox(height: 24),
+            
+            // CTA Button
+            ElevatedButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('🤖 AI Diagnostics - Coming Soon'),
+                    backgroundColor: Color(0xFF1E90FF),
                   ),
+                );
+              },
+              icon: const Icon(Icons.psychology),
+              label: const Text(
+                'Explore AI Diagnostics',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF0066CC),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 4,
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Medical Image
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white.withOpacity(0.1),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  'https://images.unsplash.com/photo-1576091160550-2173fdabea2b?w=800',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Icon(
+                        Icons.medical_services,
+                        size: 80,
+                        color: Colors.white.withOpacity(0.5),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -520,341 +200,337 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // Connection Status Widget
-  Widget _buildConnectionStatus() {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: (isOnline ? Colors.green : Colors.orange).withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: (isOnline ? Colors.green : Colors.orange).withOpacity(0.5),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isOnline ? Icons.cloud_done : Icons.cloud_off,
-              color: isOnline ? Colors.green : Colors.orange,
-              size: 16,
+  // Why MediConnect AI Section
+  Widget _buildWhySection(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      child: Column(
+        children: [
+          const Text(
+            'Why MediConnect AI?',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1F2A44),
             ),
-            const SizedBox(width: 6),
-            Text(
-              isOnline ? 'Online' : 'Offline',
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'MediConnect AI was born from a vision to make healthcare accessible, efficient, and empowering. Our advanced AI diagnostics help detect conditions early, while our community platform connects patients, caregivers, and professionals for shared support and knowledge.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[700],
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('💬 Community - Coming Soon'),
+                  backgroundColor: Color(0xFF1E90FF),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0066CC),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              elevation: 2,
+            ),
+            child: const Text(
+              'Join Our Community',
               style: TextStyle(
-                color: isOnline ? Colors.green : Colors.orange,
-                fontSize: 12,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Quick Stats Card
-  Widget _buildQuickStatsCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF00D9FF).withOpacity(0.15),
-            const Color(0xFF00F5A0).withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF00D9FF).withOpacity(0.3),
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStatItem('Today', todayPatients.toString(), Icons.person_add),
-          _buildStatItem('Queue', queueCount.toString(), Icons.hourglass_empty),
-          _buildStatItem('Total', totalPatients.toString(), Icons.people),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: const Color(0xFF00D9FF), size: 24),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+  // Hero Image Section (Optional)
+  Widget _buildHeroSection(BuildContext context) {
+    return const SizedBox.shrink(); // Removed - image now in header
+  }
+
+  // Quick Access Grid
+  Widget _buildQuickAccessGrid(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Text(
+              'Quick Access',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1F2A44),
+              ),
+            ),
           ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.white.withOpacity(0.6),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.center,
+            children: [
+              _buildAccessCard(
+                context,
+                icon: Icons.local_hospital,
+                title: 'Find Hospitals',
+                description: 'Locate hospitals near you',
+                color: const Color(0xFF1E90FF),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🏥 Find Hospitals - Coming Soon'),
+                      backgroundColor: Color(0xFF1E90FF),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.medical_services,
+                title: 'Find Clinics',
+                description: 'Discover clinics nearby',
+                color: const Color(0xFF00C853),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🏥 Find Clinics - Coming Soon'),
+                      backgroundColor: Color(0xFF00C853),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.person,
+                title: 'Find Doctors',
+                description: 'Search for specialists',
+                color: const Color(0xFF9C27B0),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('👨‍⚕️ Find Doctors - Coming Soon'),
+                      backgroundColor: Color(0xFF9C27B0),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.people,
+                title: 'Patient Records',
+                description: 'Manage your health records',
+                color: const Color(0xFF0066CC),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PatientsScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.psychology,
+                title: 'AI Diagnostics',
+                description: 'Upload files for AI analysis',
+                color: const Color(0xFFFF5722),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🤖 AI Diagnostics - Coming Soon'),
+                      backgroundColor: Color(0xFFFF5722),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.shield,
+                title: 'Medical Aid',
+                description: 'Connect to medical services',
+                color: const Color(0xFFFFC107),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🛡️ Medical Aid - Coming Soon'),
+                      backgroundColor: Color(0xFFFFC107),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.forum,
+                title: 'Community',
+                description: 'Connect with others',
+                color: const Color(0xFF4CAF50),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('💬 Community - Coming Soon'),
+                      backgroundColor: Color(0xFF4CAF50),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.school,
+                title: 'Health Education',
+                description: 'Learn about wellness',
+                color: const Color(0xFFE91E63),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('📚 Health Education - Coming Soon'),
+                      backgroundColor: Color(0xFFE91E63),
+                    ),
+                  );
+                },
+              ),
+              _buildAccessCard(
+                context,
+                icon: Icons.emergency,
+                title: 'Emergency',
+                description: '24/7 emergency services',
+                color: const Color(0xFFD32F2F),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('🚑 Emergency Services - Coming Soon'),
+                      backgroundColor: Color(0xFFD32F2F),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // Feature Card Widget
-  Widget _buildFeatureCard({
+  Widget _buildAccessCard(
+    BuildContext context, {
     required IconData icon,
-    required String label,
+    required String title,
+    required String description,
     required Color color,
     required VoidCallback onTap,
   }) {
     return SizedBox(
-      width: 150,
-      height: 120,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                color.withOpacity(0.15),
-                color.withOpacity(0.05),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: color.withOpacity(0.4),
-              width: 1.5,
-            ),
+      width: 160,
+      child: Card(
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: color.withOpacity(0.3),
+            width: 1.5,
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          color.withOpacity(0.3),
-                          color.withOpacity(0.1),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      border: Border.all(
-                        color: color.withOpacity(0.5),
-                        width: 1,
-                      ),
-                    ),
-                    child: Icon(
-                      icon,
-                      color: color,
-                      size: 24,
+        ),
+        color: Colors.white,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: color.withOpacity(0.3),
+                      width: 2,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 14,
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Title
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1F2A44),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                
+                // Description
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Action Button
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: color.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    'Explore',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      letterSpacing: 0.3,
+                      color: color,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  // Helper Methods
-  void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('🚀 $feature - Coming Soon!'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: const Color(0xFF00D9FF),
-      ),
-    );
-  }
-
-  void _performSync() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Text(isOnline 
-              ? '🔄 Syncing data with server...' 
-              : '⚠️ No internet connection. Data will sync when online.'),
-          ],
-        ),
-        duration: const Duration(seconds: 3),
-        backgroundColor: const Color(0xFF00D9FF),
-      ),
-    );
-  }
-
-  void _showSyncStatus() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1f3a),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: const Color(0xFF00D9FF).withOpacity(0.3),
-            width: 1.5,
-          ),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              isOnline ? Icons.cloud_done : Icons.cloud_off,
-              color: isOnline ? Colors.green : Colors.orange,
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'Sync Status',
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSyncStatusItem('Connection', isOnline ? 'Online' : 'Offline', isOnline),
-            _buildSyncStatusItem('Last Sync', '2 hours ago', true),
-            _buildSyncStatusItem('Pending Changes', '0 items', true),
-            _buildSyncStatusItem('Next Sync', isOnline ? 'In progress...' : 'When online', isOnline),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close', style: TextStyle(color: Color(0xFF00D9FF))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSyncStatusItem(String label, String value, bool isGood) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 14,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              color: isGood ? Colors.green : Colors.orange,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLanguageDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1a1f3a),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: const Color(0xFF00D9FF).withOpacity(0.3),
-            width: 1.5,
-          ),
-        ),
-        title: const Row(
-          children: [
-            Icon(Icons.language, color: Color(0xFF00D9FF)),
-            SizedBox(width: 12),
-            Text('Select Language', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildLanguageOption('🇬🇧', 'English', true),
-            _buildLanguageOption('🇿🇦', 'isiZulu', false),
-            _buildLanguageOption('🇿🇦', 'Sesotho', false),
-            _buildLanguageOption('🇰🇪', 'Swahili', false),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close', style: TextStyle(color: Color(0xFF00D9FF))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageOption(String flag, String language, bool isSelected) {
-    return ListTile(
-      leading: Text(flag, style: const TextStyle(fontSize: 24)),
-      title: Text(
-        language,
-        style: TextStyle(
-          color: isSelected ? const Color(0xFF00D9FF) : Colors.white,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      trailing: isSelected
-          ? const Icon(Icons.check_circle, color: Color(0xFF00D9FF))
-          : null,
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Language changed to $language'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: const Color(0xFF00F5A0),
-          ),
-        );
-        Navigator.pop(context);
-      },
     );
   }
 }
