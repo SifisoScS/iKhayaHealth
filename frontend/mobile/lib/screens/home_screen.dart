@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'patients_screen.dart';
+import 'emergency_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,9 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Header Section
               _buildHeader(context),
-              
-              // Hero Section
-              _buildHeroSection(context),
               
               // Why MediConnect AI Section
               _buildWhySection(context),
@@ -261,15 +259,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Hero Image Section (Optional)
-  Widget _buildHeroSection(BuildContext context) {
-    return const SizedBox.shrink(); // Removed - image now in header
-  }
-
-  // Quick Access Grid
+  // Quick Access Grid - FIXED LAYOUT
   Widget _buildQuickAccessGrid(BuildContext context) {
+    // Get screen width to determine card size
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = (screenWidth - 64) / 4; // 4 cards per row with spacing
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -284,10 +281,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            alignment: WrapAlignment.center,
+          
+          // Row 1: Find Hospitals, Find Clinics, Find Doctors, Patient Records
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildAccessCard(
                 context,
@@ -295,6 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: 'Find Hospitals',
                 description: 'Locate hospitals near you',
                 color: const Color(0xFF1E90FF),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -310,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: 'Find Clinics',
                 description: 'Discover clinics nearby',
                 color: const Color(0xFF00C853),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -325,6 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: 'Find Doctors',
                 description: 'Search for specialists',
                 color: const Color(0xFF9C27B0),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -338,8 +338,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 icon: Icons.people,
                 title: 'Patient Records',
-                description: 'Manage your health records',
+                description: 'Manage health records',
                 color: const Color(0xFF0066CC),
+                width: cardWidth,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -349,12 +350,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Row 2: AI Diagnostics, Medical Aid, Community
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
               _buildAccessCard(
                 context,
                 icon: Icons.psychology,
                 title: 'AI Diagnostics',
-                description: 'Upload files for AI analysis',
+                description: 'Upload for AI analysis',
                 color: const Color(0xFFFF5722),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -368,8 +379,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 icon: Icons.shield,
                 title: 'Medical Aid',
-                description: 'Connect to medical services',
+                description: 'Connect to services',
                 color: const Color(0xFFFFC107),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -385,6 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: 'Community',
                 description: 'Connect with others',
                 color: const Color(0xFF4CAF50),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -394,12 +407,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
+              // Empty space for alignment
+              SizedBox(width: cardWidth),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Row 3: Health Education, Emergency (centered)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               _buildAccessCard(
                 context,
                 icon: Icons.school,
                 title: 'Health Education',
                 description: 'Learn about wellness',
                 color: const Color(0xFFE91E63),
+                width: cardWidth,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -409,17 +434,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
+              const SizedBox(width: 16),
               _buildAccessCard(
                 context,
                 icon: Icons.emergency,
                 title: 'Emergency',
                 description: '24/7 emergency services',
                 color: const Color(0xFFD32F2F),
+                width: cardWidth,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('🚑 Emergency Services - Coming Soon'),
-                      backgroundColor: Color(0xFFD32F2F),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmergencyScreen(),
                     ),
                   );
                 },
@@ -437,10 +464,11 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required String description,
     required Color color,
+    required double width,
     required VoidCallback onTap,
   }) {
     return SizedBox(
-      width: 160,
+      width: width,
       child: Card(
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.1),
@@ -501,6 +529,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.grey[600],
                     height: 1.3,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 12),
                 
