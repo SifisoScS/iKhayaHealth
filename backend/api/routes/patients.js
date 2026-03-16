@@ -4,7 +4,7 @@ const router = express.Router();
 const db = require('../../db/config');
 const authMiddleware = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
-const { logAction } = require('../../../security/audit/logger');
+const { logAction, logActionToDb } = require('../../../security/audit/logger');
 const EncryptionService = require('../../../security/encryption/aes');
 
 // Encryption key must be 32 bytes. Derive from env var (hex-encoded 64-char string).
@@ -127,7 +127,7 @@ router.get('/:id', [uuidParam], async (req, res) => {
       patient.family_name = decryptField(patient.family_name, patient.family_name_iv, patient.family_name_auth_tag);
     }
 
-    logAction(req.user.id, 'READ', 'patient', { patientId: id });
+    await logActionToDb(db, req.user.id, 'VIEW', 'patient', id, req);
     res.json(patient);
   } catch (error) {
     console.error('GET /patients/:id error:', error.message);
@@ -166,7 +166,7 @@ router.post(
       );
 
       const created = result.rows[0];
-      logAction(req.user.id, 'CREATE', 'patient', { patientId: created.id });
+      await logActionToDb(db, req.user.id, 'CREATE', 'patient', created.id, req);
       res.status(201).json({ ...created, given_name, family_name });
     } catch (error) {
       console.error('POST /patients error:', error.message);
@@ -209,7 +209,7 @@ router.put(
         return res.status(404).json({ error: 'Patient not found' });
       }
 
-      logAction(req.user.id, 'UPDATE', 'patient', { patientId: id });
+      await logActionToDb(db, req.user.id, 'UPDATE', 'patient', id, req);
       res.json({ ...result.rows[0], given_name, family_name });
     } catch (error) {
       console.error('PUT /patients/:id error:', error.message);
@@ -240,7 +240,7 @@ router.delete(
         return res.status(404).json({ error: 'Patient not found' });
       }
 
-      logAction(req.user.id, 'DELETE', 'patient', { patientId: id });
+      await logActionToDb(db, req.user.id, 'DELETE', 'patient', id, req);
       res.json({ message: 'Patient deactivated', id });
     } catch (error) {
       console.error('DELETE /patients/:id error:', error.message);
@@ -248,5 +248,56 @@ router.delete(
     }
   }
 );
+
+// GET /api/patients/:id/export — POPIA data subject access (all authenticated roles)
+router.get('/:id/export', [uuidParam], async (req, res) => {
+  const validationError = handleValidation(req, res);
+  if (validationError) return validationError;
+
+  const { id } = req.params;
+  try {
+    const [patientRes, encountersRes, allergiesRes, medsRes, diagnosesRes, immunizationsRes] =
+      await Promise.all([
+        db.query('SELECT * FROM patient WHERE id = $1 AND active = true', [id]),
+        db.query('SELECT * FROM encounter WHERE patient_id = $1 ORDER BY start_date DESC', [id]),
+        db.query('SELECT * FROM allergy WHERE patient_id = $1', [id]),
+        db.query('SELECT * FROM medication WHERE patient_id = $1', [id]),
+        db.query('SELECT * FROM diagnosis WHERE patient_id = $1', [id]),
+        db.query('SELECT * FROM immunization WHERE patient_id = $1 ORDER BY administration_date DESC', [id]),
+      ]);
+
+    if (patientRes.rowCount === 0) {
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+
+    const patient = patientRes.rows[0];
+    // Decrypt PII if encryption is active
+    if (encryption) {
+      patient.given_name = decryptField(patient.given_name, patient.given_name_iv, patient.given_name_auth_tag);
+      patient.family_name = decryptField(patient.family_name, patient.family_name_iv, patient.family_name_auth_tag);
+    }
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      exportedBy: req.user.id,
+      patient,
+      encounters: encountersRes.rows,
+      allergies: allergiesRes.rows,
+      medications: medsRes.rows,
+      diagnoses: diagnosesRes.rows,
+      immunizations: immunizationsRes.rows,
+    };
+
+    logAction(req.user.id, 'VIEW', 'patient', { patientId: id, action: 'data_export' });
+
+    res
+      .set('Content-Disposition', `attachment; filename="patient-${id}-export.json"`)
+      .set('Content-Type', 'application/json')
+      .json(exportData);
+  } catch (error) {
+    console.error('GET /patients/:id/export error:', error.message);
+    res.status(500).json({ error: 'Failed to export patient data' });
+  }
+});
 
 module.exports = router;

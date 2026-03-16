@@ -9,7 +9,8 @@ jest.mock('../../backend/db/config', () => ({
 }));
 
 jest.mock('../../security/audit/logger', () => ({
-  logAction: jest.fn()
+  logAction: jest.fn(),
+  logActionToDb: jest.fn().mockResolvedValue(undefined)
 }));
 
 const request = require('supertest');
