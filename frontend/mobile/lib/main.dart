@@ -1,21 +1,21 @@
 // frontend/mobile/lib/main.dart
-// MediConnect AI - Main Application Entry Point
+// iKhaya Health - Main Application Entry Point
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/home_screen.dart';
 
 void main() {
-  runApp(const MediConnectAIApp());
+  runApp(const IKhayaHealthApp());
 }
 
-class MediConnectAIApp extends StatelessWidget {
-  const MediConnectAIApp({super.key});
+class IKhayaHealthApp extends StatelessWidget {
+  const IKhayaHealthApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MediConnect AI',
+      title: 'iKhaya Health',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

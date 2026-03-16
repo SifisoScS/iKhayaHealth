@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, "claude/**"]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_DB: ikhaya_test
+          POSTGRES_USER: ikhaya
+          POSTGRES_PASSWORD: testpassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://ikhaya:testpassword@localhost:5432/ikhaya_test
+      JWT_SECRET: ci-test-secret-not-for-production
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY || '0000000000000000000000000000000000000000000000000000000000000000' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run database migrations
+        working-directory: backend
+        run: node scripts/run-migrations.js
+        env:
+          DATABASE_URL: postgresql://ikhaya:testpassword@localhost:5432/ikhaya_test
+
+      - name: Run tests with coverage
+        working-directory: backend
+        run: npm run test:coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: backend/coverage/
+
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: false
+          tags: ikhaya-health-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
