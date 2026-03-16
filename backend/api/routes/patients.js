@@ -4,8 +4,8 @@ const router = express.Router();
 const db = require('../../db/config');
 const authMiddleware = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
-const { logAction } = require('../../security/audit/logger');
-const EncryptionService = require('../../security/encryption/aes');
+const { logAction } = require('../../../security/audit/logger');
+const EncryptionService = require('../../../security/encryption/aes');
 
 // Encryption key must be 32 bytes. Derive from env var (hex-encoded 64-char string).
 const encKey = process.env.ENCRYPTION_KEY
