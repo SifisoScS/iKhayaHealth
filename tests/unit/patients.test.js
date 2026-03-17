@@ -232,3 +232,46 @@ describe('DELETE /api/patients/:id', () => {
     expect(res.body.message).toMatch(/deactivated/i);
   });
 });
+
+describe('GET /api/patients/:id/export', () => {
+  test('returns 401 without token', async () => {
+    const res = await request(app).get(`/api/patients/${PATIENT_UUID}/export`);
+    expect(res.status).toBe(401);
+  });
+
+  test('returns 404 when patient not found', async () => {
+    // Promise.all fires 6 parallel queries; patient query returns empty
+    db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+
+    const res = await request(app)
+      .get(`/api/patients/${PATIENT_UUID}/export`)
+      .set('Authorization', doctorToken());
+
+    expect(res.status).toBe(404);
+  });
+
+  test('returns full export JSON for existing patient', async () => {
+    const patient = {
+      id: PATIENT_UUID, given_name: 'enc', given_name_iv: 'iv1', given_name_auth_tag: 'tag1',
+      family_name: 'enc2', family_name_iv: 'iv2', family_name_auth_tag: 'tag2',
+      birth_date: '1990-01-15', gender: 'male', active: true
+    };
+    db.query
+      .mockResolvedValueOnce({ rows: [patient], rowCount: 1 }) // patient
+      .mockResolvedValue({ rows: [], rowCount: 0 });            // encounters, allergies, meds, diagnoses, immunizations
+
+    const res = await request(app)
+      .get(`/api/patients/${PATIENT_UUID}/export`)
+      .set('Authorization', doctorToken());
+
+    expect(res.status).toBe(200);
+    expect(res.body.patient).toBeDefined();
+    expect(res.body.encounters).toBeDefined();
+    expect(res.body.exportedAt).toBeDefined();
+    // Encryption internals must NOT be in the export
+    expect(res.body.patient.given_name_iv).toBeUndefined();
+    expect(res.body.patient.given_name_auth_tag).toBeUndefined();
+    expect(res.body.patient.family_name_iv).toBeUndefined();
+    expect(res.body.patient.family_name_auth_tag).toBeUndefined();
+  });
+});

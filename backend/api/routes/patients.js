@@ -126,6 +126,11 @@ router.get('/:id', [uuidParam], async (req, res) => {
       patient.given_name = decryptField(patient.given_name, patient.given_name_iv, patient.given_name_auth_tag);
       patient.family_name = decryptField(patient.family_name, patient.family_name_iv, patient.family_name_auth_tag);
     }
+    // Strip encryption internals — never expose IV/auth_tag to clients
+    delete patient.given_name_iv;
+    delete patient.given_name_auth_tag;
+    delete patient.family_name_iv;
+    delete patient.family_name_auth_tag;
 
     await logActionToDb(db, req.user.id, 'VIEW', 'patient', id, req);
     res.json(patient);
@@ -276,6 +281,11 @@ router.get('/:id/export', [uuidParam], async (req, res) => {
       patient.given_name = decryptField(patient.given_name, patient.given_name_iv, patient.given_name_auth_tag);
       patient.family_name = decryptField(patient.family_name, patient.family_name_iv, patient.family_name_auth_tag);
     }
+    // Strip encryption internals — never expose IV/auth_tag to clients
+    delete patient.given_name_iv;
+    delete patient.given_name_auth_tag;
+    delete patient.family_name_iv;
+    delete patient.family_name_auth_tag;
 
     const exportData = {
       exportedAt: new Date().toISOString(),
