@@ -148,6 +148,79 @@ describe('POST /api/sync/push', () => {
     expect(res.body.errors).toHaveLength(1);
     expect(res.body.errors[0].reason).toMatch(/unsupported entity_type/i);
   });
+
+  test('successfully syncs an UPDATE record', async () => {
+    db.query
+      .mockResolvedValueOnce({
+        rows: [{ id: ENTITY_UUID, version: 2, updated_at: new Date().toISOString() }],
+        rowCount: 1
+      })  // SELECT patient
+      .mockResolvedValue({ rows: [], rowCount: 1 }); // UPDATE patient + audit
+
+    const res = await request(app)
+      .post('/api/sync/push')
+      .set('Authorization', makeToken())
+      .send({
+        records: [{
+          entity_type: 'patient',
+          entity_id: ENTITY_UUID,
+          operation: 'UPDATE',
+          data: { given_name: 'UpdatedName', family_name: 'Dlamini' },
+          device_id: 'device-abc',
+          client_version: 2
+        }]
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.synced).toBe(1);
+  });
+
+  test('successfully syncs a DELETE record', async () => {
+    db.query
+      .mockResolvedValueOnce({
+        rows: [{ id: ENTITY_UUID, version: 1, updated_at: new Date().toISOString() }],
+        rowCount: 1
+      })  // SELECT patient
+      .mockResolvedValue({ rows: [], rowCount: 1 }); // soft-delete UPDATE + audit
+
+    const res = await request(app)
+      .post('/api/sync/push')
+      .set('Authorization', makeToken())
+      .send({
+        records: [{
+          entity_type: 'patient',
+          entity_id: ENTITY_UUID,
+          operation: 'DELETE',
+          data: {},
+          device_id: 'device-abc',
+          client_version: 1
+        }]
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.synced).toBe(1);
+  });
+
+  test('records error when UPDATE/DELETE target not found', async () => {
+    db.query.mockResolvedValue({ rows: [], rowCount: 0 }); // patient not found
+
+    const res = await request(app)
+      .post('/api/sync/push')
+      .set('Authorization', makeToken())
+      .send({
+        records: [{
+          entity_type: 'patient',
+          entity_id: ENTITY_UUID,
+          operation: 'UPDATE',
+          data: { given_name: 'Ghost' },
+          device_id: 'device-abc'
+        }]
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0].reason).toMatch(/not found/i);
+  });
 });
 
 describe('GET /api/sync/pull', () => {

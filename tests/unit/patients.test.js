@@ -233,6 +233,88 @@ describe('DELETE /api/patients/:id', () => {
   });
 });
 
+describe('GET /api/patients/:id — error and encryption paths', () => {
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('connection lost'));
+
+    const res = await request(app)
+      .get(`/api/patients/${PATIENT_UUID}`)
+      .set('Authorization', doctorToken());
+
+    expect(res.status).toBe(500);
+  });
+
+  test('strips IV/auth_tag fields from response', async () => {
+    db.query.mockResolvedValue({
+      rows: [{
+        id: PATIENT_UUID,
+        given_name: 'Sipho', given_name_iv: 'iv1', given_name_auth_tag: 'tag1',
+        family_name: 'Dlamini', family_name_iv: 'iv2', family_name_auth_tag: 'tag2',
+        birth_date: '1990-01-15', gender: 'male', active: true, encounter_ids: []
+      }],
+      rowCount: 1
+    });
+
+    const res = await request(app)
+      .get(`/api/patients/${PATIENT_UUID}`)
+      .set('Authorization', doctorToken());
+
+    expect(res.status).toBe(200);
+    expect(res.body.given_name_iv).toBeUndefined();
+    expect(res.body.given_name_auth_tag).toBeUndefined();
+    expect(res.body.family_name_iv).toBeUndefined();
+    expect(res.body.family_name_auth_tag).toBeUndefined();
+  });
+});
+
+describe('POST /api/patients — error path', () => {
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('insert failed'));
+
+    const res = await request(app)
+      .post('/api/patients')
+      .set('Authorization', doctorToken())
+      .send({ given_name: 'Sipho', family_name: 'Dlamini', birth_date: '1990-01-15', gender: 'male' });
+
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('PUT /api/patients/:id — error path', () => {
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('update failed'));
+
+    const res = await request(app)
+      .put(`/api/patients/${PATIENT_UUID}`)
+      .set('Authorization', doctorToken())
+      .send({ given_name: 'Sipho', family_name: 'Dlamini', birth_date: '1990-01-15', gender: 'male' });
+
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('DELETE /api/patients/:id — error path', () => {
+  test('returns 404 when patient already inactive', async () => {
+    db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+
+    const res = await request(app)
+      .delete(`/api/patients/${PATIENT_UUID}`)
+      .set('Authorization', adminToken());
+
+    expect(res.status).toBe(404);
+  });
+
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('delete failed'));
+
+    const res = await request(app)
+      .delete(`/api/patients/${PATIENT_UUID}`)
+      .set('Authorization', adminToken());
+
+    expect(res.status).toBe(500);
+  });
+});
+
 describe('GET /api/patients/:id/export', () => {
   test('returns 401 without token', async () => {
     const res = await request(app).get(`/api/patients/${PATIENT_UUID}/export`);
@@ -273,5 +355,15 @@ describe('GET /api/patients/:id/export', () => {
     expect(res.body.patient.given_name_auth_tag).toBeUndefined();
     expect(res.body.patient.family_name_iv).toBeUndefined();
     expect(res.body.patient.family_name_auth_tag).toBeUndefined();
+  });
+
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('export query failed'));
+
+    const res = await request(app)
+      .get(`/api/patients/${PATIENT_UUID}/export`)
+      .set('Authorization', doctorToken());
+
+    expect(res.status).toBe(500);
   });
 });
