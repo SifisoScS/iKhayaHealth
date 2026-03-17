@@ -298,7 +298,7 @@ router.get('/:id/export', [uuidParam], async (req, res) => {
       immunizations: immunizationsRes.rows,
     };
 
-    logAction(req.user.id, 'VIEW', 'patient', { patientId: id, action: 'data_export' });
+    await logActionToDb(db, req.user.id, 'EXPORT', 'patient', id, req);
 
     res
       .set('Content-Disposition', `attachment; filename="patient-${id}-export.json"`)

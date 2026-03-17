@@ -6,7 +6,7 @@ const router = express.Router();
 const db = require('../../db/config');
 const authMiddleware = require('../middleware/auth');
 const { signToken } = require('../middleware/auth');
-const { logAction } = require('../../../security/audit/logger');
+const { logActionToDb } = require('../../../security/audit/logger');
 
 const REFRESH_TOKEN_BYTES = 48;
 const REFRESH_EXPIRES_DAYS = parseInt(process.env.REFRESH_TOKEN_EXPIRES_DAYS || '30', 10);
@@ -95,7 +95,7 @@ router.post(
         [user.id, tokenHash, expiresAt]
       );
 
-      logAction(user.id, 'LOGIN', 'user', { username: user.username, ip: req.ip });
+      await logActionToDb(db, user.id, 'LOGIN', 'user', user.id, req);
 
       res.json({
         accessToken,
@@ -183,7 +183,7 @@ router.post('/logout', authMiddleware, async (req, res) => {
     ).catch(() => {});
   }
 
-  logAction(req.user.id, 'LOGOUT', 'user', { ip: req.ip });
+  await logActionToDb(db, req.user.id, 'LOGOUT', 'user', req.user.id, req);
   res.json({ message: 'Logged out successfully.' });
 });
 
