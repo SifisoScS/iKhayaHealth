@@ -102,6 +102,18 @@ describe('POST /api/auth/login', () => {
     expect(res.body.refreshToken).toBeDefined();
     expect(res.body.role).toBe('doctor');
   });
+
+  test('returns 500 when DB throws during login', async () => {
+    db.query.mockRejectedValue(new Error('DB unavailable'));
+    bcrypt.compare.mockResolvedValue(true);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ username: 'testdoc', password: 'correctpass' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/login failed/i);
+  });
 });
 
 describe('POST /api/auth/refresh', () => {
@@ -153,6 +165,17 @@ describe('POST /api/auth/refresh', () => {
     expect(res.status).toBe(200);
     expect(res.body.accessToken).toBeDefined();
     expect(res.body.refreshToken).toBeDefined();
+  });
+
+  test('returns 500 when DB throws during refresh', async () => {
+    db.query.mockRejectedValue(new Error('DB unavailable'));
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'sometoken' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/refresh failed/i);
   });
 });
 
