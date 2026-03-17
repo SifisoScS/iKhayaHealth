@@ -1,17 +1,19 @@
--- Migration 003: Drop legacy patients table (plural) from 001_initial_schema.sql
+-- Migration 003: Drop legacy tables from 001_initial_schema.sql
 --
--- The canonical FHIR-aligned schema uses the singular `patient` table defined in
--- 002_patient_records.sql. The `patients` (plural) table created by 001 uses a
--- different schema and will cause confusion and silent query failures if both exist.
--- Drop it and all dependent objects (visits, vitals, users, audit_logs, sync_queue
--- from migration 001) in favour of the 002 schema.
+-- The canonical FHIR-aligned schema uses tables defined in 002_patient_records.sql.
+-- Migration 001 created conflicting legacy tables that cause silent query failures.
+-- This migration removes them EXCEPT for `users`, which is still required by the
+-- auth system and is not yet redefined in the 002 schema.
 --
--- WARNING: Only run this migration if 001 was previously applied. Running it on a
--- fresh database where only 002 has been applied is safe (IF EXISTS guards are used).
+-- NOTE: The `users` table from 001 is intentionally preserved here.
+--       Migration 004 will add auth-specific columns to it.
+--
+-- WARNING: Only run this migration if 001 was previously applied.
+--          Running on a fresh database (only 002 applied) is safe — IF EXISTS guards.
 
 DROP TABLE IF EXISTS sync_queue CASCADE;
 DROP TABLE IF EXISTS audit_logs CASCADE;
 DROP TABLE IF EXISTS vitals CASCADE;
 DROP TABLE IF EXISTS visits CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS patients CASCADE;
+-- `users` is intentionally NOT dropped — auth routes depend on it.
