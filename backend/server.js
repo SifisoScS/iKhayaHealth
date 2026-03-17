@@ -14,9 +14,12 @@ if (missing.length > 0) {
 }
 
 const db = require('./db/config');
-const patientsRouter = require('./api/routes/patients');
-const authRouter    = require('./api/routes/auth');
-const syncRouter    = require('./api/routes/sync');
+const patientsRouter   = require('./api/routes/patients');
+const authRouter       = require('./api/routes/auth');
+const syncRouter       = require('./api/routes/sync');
+const encountersRouter = require('./api/routes/encounters');
+const clinicalRouter   = require('./api/routes/clinical');
+const usersRouter      = require('./api/routes/users');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -71,9 +74,12 @@ app.get('/health', async (req, res) => {
   }
 });
 
-app.use('/api/auth',     authRouter);
-app.use('/api/patients', patientsRouter);
-app.use('/api/sync',     syncRouter);
+app.use('/api/auth',                      authRouter);
+app.use('/api/patients',                  patientsRouter);
+app.use('/api/patients/:patientId',       clinicalRouter);
+app.use('/api/encounters',                encountersRouter);
+app.use('/api/sync',                      syncRouter);
+app.use('/api/users',                     usersRouter);
 
 // Global error handler
 app.use((err, req, res, next) => {
