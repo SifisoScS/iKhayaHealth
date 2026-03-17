@@ -13,6 +13,7 @@ const MIGRATIONS = [
   '002_patient_records.sql',
   '003_drop_legacy_patients.sql',
   '004_encryption_and_auth.sql',
+  '005_audit_log_actions.sql',
 ];
 
 async function ensureTrackingTable(client) {
