@@ -14,11 +14,31 @@ In compliance with the Protection of Personal Information Act (POPIA), Act 4 of 
 
 | | |
 |---|---|
-| **Name** | [Designated Information Officer — to be appointed before go-live] |
+| | |
+|---|---|
+| **Name** | Clinic Director / Practice Manager |
 | **Email** | io@ikhayahealth.org |
-| **Regulator Registration** | To be submitted to the Information Regulator (South Africa) |
+| **Regulator Registration** | Must be submitted to the Information Regulator (South Africa) before processing any patient data — registration portal: https://www.justice.gov.za/inforeg/ |
 
-The Deputy Information Officer is responsible for day-to-day POPIA compliance matters and can be reached at the same contact address.
+The Information Officer must be formally appointed in writing before the system goes live. The Deputy Information Officer is responsible for day-to-day POPIA compliance matters.
+
+### POPIA Data Retention Policy
+
+| Data Category | Retention Period | Basis |
+|---|---|---|
+| Patient clinical records | 6 years from last entry (adults); until age 21 for minors | Health Act / POPIA Section 14 |
+| Audit logs | 5 years | POPIA accountability obligation |
+| Refresh tokens | 48 hours (auto-expired by DB) | Minimum necessary |
+| User session logs | 90 days | Security monitoring |
+| Deleted patient records | Soft-deleted only; purge after 7 years | Legal hold protection |
+
+Data subjects have the right to:
+- Access their personal information (Section 23)
+- Correct or delete inaccurate information (Section 24)
+- Object to processing (Section 11)
+- Lodge a complaint with the Information Regulator (Section 74)
+
+All data subject requests must be responded to within **30 days**.
 
 ---
 

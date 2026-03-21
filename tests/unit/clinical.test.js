@@ -111,6 +111,13 @@ describe('POST /api/patients/:patientId/allergies', () => {
   });
 });
 
+describe('GET /api/patients/:patientId/allergies — extra', () => {
+  test('returns 401 without token', async () => {
+    const res = await request(app).get(`/api/patients/${PATIENT_UUID}/allergies`);
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('PUT /api/patients/:patientId/allergies/:id', () => {
   test('returns 403 for nurse', async () => {
     const res = await request(app)
@@ -149,6 +156,15 @@ describe('PUT /api/patients/:patientId/allergies/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('resolved');
   });
+
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('update failed'));
+    const res = await request(app)
+      .put(`/api/patients/${PATIENT_UUID}/allergies/${ALLERGY_UUID}`)
+      .set('Authorization', token())
+      .send({ status: 'resolved' });
+    expect(res.status).toBe(500);
+  });
 });
 
 describe('DELETE /api/patients/:patientId/allergies/:id', () => {
@@ -174,6 +190,14 @@ describe('DELETE /api/patients/:patientId/allergies/:id', () => {
       .set('Authorization', token());
     expect(res.status).toBe(200);
     expect(res.body.message).toMatch(/deactivated/i);
+  });
+
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('delete failed'));
+    const res = await request(app)
+      .delete(`/api/patients/${PATIENT_UUID}/allergies/${ALLERGY_UUID}`)
+      .set('Authorization', token());
+    expect(res.status).toBe(500);
   });
 });
 
@@ -242,6 +266,14 @@ describe('POST /api/patients/:patientId/medications', () => {
 });
 
 describe('PUT /api/patients/:patientId/medications/:id', () => {
+  test('returns 403 for nurse', async () => {
+    const res = await request(app)
+      .put(`/api/patients/${PATIENT_UUID}/medications/${MED_UUID}`)
+      .set('Authorization', token('nurse'))
+      .send({ status: 'stopped' });
+    expect(res.status).toBe(403);
+  });
+
   test('returns 422 for invalid status', async () => {
     const res = await request(app)
       .put(`/api/patients/${PATIENT_UUID}/medications/${MED_UUID}`)
@@ -271,10 +303,27 @@ describe('PUT /api/patients/:patientId/medications/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('stopped');
   });
+
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('update failed'));
+    const res = await request(app)
+      .put(`/api/patients/${PATIENT_UUID}/medications/${MED_UUID}`)
+      .set('Authorization', token())
+      .send({ status: 'stopped' });
+    expect(res.status).toBe(500);
+  });
 });
 
 // ── DIAGNOSES ─────────────────────────────────────────────────────────────────
 describe('GET /api/patients/:patientId/diagnoses', () => {
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .get(`/api/patients/${PATIENT_UUID}/diagnoses`)
+      .set('Authorization', token());
+    expect(res.status).toBe(500);
+  });
+
   test('returns diagnosis list', async () => {
     db.query.mockResolvedValue({
       rows: [{ id: DIAG_UUID, condition_name: 'Type 2 Diabetes', status: 'active' }],
@@ -328,6 +377,17 @@ describe('POST /api/patients/:patientId/diagnoses', () => {
     expect(res.status).toBe(201);
     expect(res.body.condition_name).toBe('Hypertension');
   });
+
+  test('returns 500 on DB error', async () => {
+    db.query
+      .mockResolvedValueOnce({ rows: [{ id: PATIENT_UUID }], rowCount: 1 })
+      .mockRejectedValue(new Error('insert failed'));
+    const res = await request(app)
+      .post(`/api/patients/${PATIENT_UUID}/diagnoses`)
+      .set('Authorization', token())
+      .send({ condition_name: 'Hypertension' });
+    expect(res.status).toBe(500);
+  });
 });
 
 describe('PUT /api/patients/:patientId/diagnoses/:id', () => {
@@ -359,6 +419,15 @@ describe('PUT /api/patients/:patientId/diagnoses/:id', () => {
       .send({ status: 'resolved', resolved_date: new Date().toISOString() });
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('resolved');
+  });
+
+  test('returns 500 on DB error', async () => {
+    db.query.mockRejectedValue(new Error('update failed'));
+    const res = await request(app)
+      .put(`/api/patients/${PATIENT_UUID}/diagnoses/${DIAG_UUID}`)
+      .set('Authorization', token())
+      .send({ status: 'resolved' });
+    expect(res.status).toBe(500);
   });
 });
 
