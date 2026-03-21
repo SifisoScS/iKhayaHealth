@@ -14,7 +14,7 @@ const encKey = process.env.ENCRYPTION_KEY
 const encryption = encKey ? new EncryptionService(encKey) : null;
 
 function encryptField(value) {
-  if (!encryption || value == null) return { value, iv: null, authTag: null };
+  if (!encryption || value === null || value === undefined) return { value, iv: null, authTag: null };
   const result = encryption.encrypt(String(value));
   return { value: result.encrypted, iv: result.iv, authTag: result.authTag };
 }
@@ -149,7 +149,7 @@ router.post(
     const validationError = handleValidation(req, res);
     if (validationError) return validationError;
 
-    const { given_name, family_name, birth_date, gender, phone, address } = req.body;
+    const { given_name, family_name, birth_date, gender, phone: _phone, address: _address } = req.body;
 
     // Encrypt PII fields
     const givenEnc = encryptField(given_name);

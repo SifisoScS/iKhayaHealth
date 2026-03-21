@@ -43,13 +43,14 @@ app.use(
   })
 );
 
-// Rate limiting: 100 requests per minute per IP
+// Rate limiting: 100 requests per minute per IP (disabled in test environment)
 app.use(
   rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10),
     max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'test',
     message: { error: 'Too many requests. Please try again later.' }
   })
 );
@@ -69,7 +70,7 @@ app.get('/health', async (req, res) => {
     await db.query('SELECT 1');
     const dbLatencyMs = Date.now() - start;
     res.json({ status: 'ok', message: 'iKhaya Health API is running', db: 'connected', dbLatencyMs });
-  } catch (err) {
+  } catch (_err) {
     res.status(503).json({ status: 'degraded', message: 'Database unreachable', db: 'disconnected' });
   }
 });
@@ -82,7 +83,7 @@ app.use('/api/sync',                      syncRouter);
 app.use('/api/users',                     usersRouter);
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });

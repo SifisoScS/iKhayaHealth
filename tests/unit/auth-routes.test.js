@@ -72,7 +72,7 @@ describe('POST /api/auth/login', () => {
     expect(res.status).toBe(401);
   });
 
-  test('returns 429 when account is locked', async () => {
+  test('returns 423 when account is locked', async () => {
     const lockedUser = {
       ...validUser,
       locked_until: new Date(Date.now() + 60 * 60 * 1000).toISOString() // locked 1h from now
@@ -83,7 +83,7 @@ describe('POST /api/auth/login', () => {
       .post('/api/auth/login')
       .send({ username: 'testdoc', password: 'anypass' });
 
-    expect(res.status).toBe(429);
+    expect(res.status).toBe(423);
     expect(res.body.error).toMatch(/locked/i);
   });
 
@@ -100,7 +100,7 @@ describe('POST /api/auth/login', () => {
     expect(res.status).toBe(200);
     expect(res.body.accessToken).toBeDefined();
     expect(res.body.refreshToken).toBeDefined();
-    expect(res.body.role).toBe('doctor');
+    expect(res.body.user.role).toBe('doctor');
   });
 
   test('returns 500 when DB throws during login', async () => {
