@@ -1,9 +1,11 @@
 // frontend/mobile/lib/screens/home_screen.dart
-// MediConnect AI - Clean White Professional Design
 
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import '../services/sync_service.dart';
 import 'patients_screen.dart';
 import 'emergency_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _syncing = false;
+  String? _syncMessage;
+
+  Future<void> _sync() async {
+    setState(() { _syncing = true; _syncMessage = null; });
+    final result = await SyncService.instance.sync();
+    if (mounted) {
+      setState(() {
+        _syncing = false;
+        _syncMessage = result.hasErrors
+            ? 'Sync completed with errors: ${result.messages.join('; ')}'
+            : 'Sync complete — pushed ${result.pushed}, pulled ${result.pulled}';
+      });
+    }
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    await AuthService.instance.logout();
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,8 +52,51 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Header Section
               _buildHeader(context),
-              
-              // Why MediConnect AI Section
+
+              // Sync message banner
+              if (_syncMessage != null)
+                Container(
+                  width: double.infinity,
+                  color: _syncMessage!.contains('error')
+                      ? Colors.orange.shade50
+                      : Colors.green.shade50,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _syncMessage!.contains('error')
+                            ? Icons.warning_amber
+                            : Icons.check_circle_outline,
+                        size: 16,
+                        color: _syncMessage!.contains('error')
+                            ? Colors.orange.shade700
+                            : Colors.green.shade700,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _syncMessage!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _syncMessage!.contains('error')
+                                ? Colors.orange.shade700
+                                : Colors.green.shade700,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 16),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () =>
+                            setState(() => _syncMessage = null),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Why iKhaya Health Section
               _buildWhySection(context),
               
               // Quick Access Cards
@@ -85,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      'MediConnect AI',
+                      'iKhaya Health',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -94,17 +165,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                // Settings Icon
-                IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('⚙️ Settings - Coming Soon'),
-                        backgroundColor: Color(0xFF0066CC),
+                // Sync + logout menu
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_syncing)
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    else
+                      IconButton(
+                        icon: const Icon(Icons.sync, color: Colors.white),
+                        tooltip: 'Sync with server',
+                        onPressed: _sync,
                       ),
-                    );
-                  },
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      onSelected: (v) {
+                        if (v == 'logout') _logout(context);
+                      },
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'logout', child: Text('Sign out')),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -113,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             
             // Title & Subtitle
             const Text(
-              'Welcome to MediConnect AI',
+              'Welcome to iKhaya Health',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 32,
@@ -124,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Revolutionizing healthcare with AI diagnostics\nand community-driven support',
+              'Offline-first patient records for clinics\nacross South Africa',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,

@@ -4,13 +4,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'services/auth_service.dart';
 
-void main() {
-  runApp(const IKhayaHealthApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final isLoggedIn = await AuthService.instance.isLoggedIn();
+  runApp(IKhayaHealthApp(isLoggedIn: isLoggedIn));
 }
 
 class IKhayaHealthApp extends StatelessWidget {
-  const IKhayaHealthApp({super.key});
+  final bool isLoggedIn;
+  const IKhayaHealthApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -20,20 +25,18 @@ class IKhayaHealthApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0066CC), // Primary blue
+          seedColor: const Color(0xFF0066CC),
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF9FAFB), // Sterile gray
-        
-        // App Bar Theme
+        scaffoldBackgroundColor: const Color(0xFFF9FAFB),
+
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF0066CC),
           foregroundColor: Colors.white,
           elevation: 2,
           centerTitle: true,
         ),
-        
-        // Card Theme
+
         cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 2,
@@ -42,24 +45,19 @@ class IKhayaHealthApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        
-        // Button Theme
+
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF0066CC),
             foregroundColor: Colors.white,
             elevation: 2,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
           ),
         ),
-        
-        // Text Theme
+
         textTheme: const TextTheme(
           displayLarge: TextStyle(
             fontSize: 32,
@@ -86,17 +84,10 @@ class IKhayaHealthApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: Color(0xFF1F2A44),
           ),
-          bodyLarge: TextStyle(
-            fontSize: 16,
-            color: Color(0xFF1F2A44),
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF1F2A44),
-          ),
+          bodyLarge: TextStyle(fontSize: 16, color: Color(0xFF1F2A44)),
+          bodyMedium: TextStyle(fontSize: 14, color: Color(0xFF1F2A44)),
         ),
-        
-        // Input Decoration Theme
+
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
@@ -114,21 +105,20 @@ class IKhayaHealthApp extends StatelessWidget {
           ),
         ),
       ),
-      
-      // Localization
+
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('en', 'ZA'), // English (South Africa)
-        Locale('zu', 'ZA'), // isiZulu
-        Locale('st', 'ZA'), // Sesotho
-        Locale('sw', 'KE'), // Swahili
+        Locale('en', 'ZA'),
+        Locale('zu', 'ZA'),
+        Locale('st', 'ZA'),
+        Locale('sw', 'KE'),
       ],
-      
-      home: const HomeScreen(),
+
+      home: isLoggedIn ? const HomeScreen() : const LoginScreen(),
     );
   }
 }
