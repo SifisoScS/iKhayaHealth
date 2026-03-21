@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ApiStatusProvider } from './context/ApiStatusContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import OfflineBanner from './components/OfflineBanner';
@@ -26,6 +27,7 @@ function AppLayout({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <ApiStatusProvider>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -93,6 +95,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>
+      </ApiStatusProvider>
     </BrowserRouter>
   );
 }

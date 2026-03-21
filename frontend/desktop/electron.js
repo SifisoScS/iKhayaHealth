@@ -1,16 +1,25 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 const isDev = process.env.NODE_ENV === 'development';
 
 function createWindow() {
+  const { width: screenW, height: screenH } = screen.getPrimaryDisplay().workAreaSize;
+
+  // Use 85% of the screen, capped at 1600×1000, floored at 900×600
+  const winW = Math.max(900, Math.min(1600, Math.round(screenW * 0.85)));
+  const winH = Math.max(600, Math.min(1000, Math.round(screenH * 0.85)));
+
   const mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: winW,
+    height: winH,
+    minWidth: 900,
+    minHeight: 600,
+    center: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
 
   mainWindow.loadURL(
