@@ -55,7 +55,7 @@ router.post(
 
       // Check account lockout
       if (user.locked_until && new Date(user.locked_until) > new Date()) {
-        return res.status(429).json({
+        return res.status(423).json({
           error: `Account locked due to too many failed attempts. Try again after ${new Date(user.locked_until).toISOString()}.`
         });
       }
@@ -101,7 +101,7 @@ router.post(
         accessToken,
         refreshToken: rawRefresh,
         expiresIn: process.env.JWT_EXPIRES_IN || '8h',
-        role: user.role
+        user: { id: user.id, username: user.username, role: user.role, clinicId: user.clinic_id }
       });
     } catch (err) {
       console.error('POST /auth/login error:', err.message);
