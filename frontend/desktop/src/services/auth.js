@@ -23,7 +23,7 @@ export function isAuthenticated() {
 
 export async function login(username, password) {
   const { data } = await api.post('/api/auth/login', { username, password });
-  localStorage.setItem(TOKEN_KEY, data.token);
+  localStorage.setItem(TOKEN_KEY, data.accessToken);
   localStorage.setItem(REFRESH_KEY, data.refreshToken);
   localStorage.setItem(USER_KEY, JSON.stringify(data.user));
   return data.user;

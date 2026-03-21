@@ -17,22 +17,33 @@ function validate(req, res) {
   return null;
 }
 
-// ── GET /api/encounters?patient_id=UUID ──────────────────────────────────────
+// ── GET /api/encounters?patient_id=UUID&limit=N ──────────────────────────────
 router.get(
   '/',
-  [query('patient_id').isUUID().withMessage('patient_id query param must be a UUID')],
+  [query('patient_id').optional().isUUID().withMessage('patient_id must be a UUID')],
   async (req, res) => {
     if (validate(req, res)) return;
-    const { patient_id } = req.query;
+    const { patient_id, limit } = req.query;
+    const cap = Math.min(parseInt(limit, 10) || 100, 500);
     try {
-      const result = await db.query(
-        `SELECT id, encounter_type, status, start_time, end_time,
-                location, chief_complaint, created_at
-         FROM encounter
-         WHERE patient_id = $1
-         ORDER BY start_time DESC`,
-        [patient_id]
-      );
+      const result = patient_id
+        ? await db.query(
+            `SELECT id, encounter_type, status, start_time, end_time,
+                    location, chief_complaint, created_at
+             FROM encounter
+             WHERE patient_id = $1
+             ORDER BY start_time DESC
+             LIMIT $2`,
+            [patient_id, cap]
+          )
+        : await db.query(
+            `SELECT id, patient_id, encounter_type, status, start_time, end_time,
+                    location, chief_complaint, created_at
+             FROM encounter
+             ORDER BY start_time DESC
+             LIMIT $1`,
+            [cap]
+          );
       res.json({ data: result.rows, count: result.rowCount });
     } catch (err) {
       console.error('GET /encounters error:', err.message);
