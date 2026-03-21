@@ -12,7 +12,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-package-lock.json
+# Ignore desktop lock file (native deps vary by OS) but track backend lock for CI
+frontend/desktop/package-lock.json
 
 # Testing
 coverage/
