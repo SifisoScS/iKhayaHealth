@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import '../models/patient.dart';
 import '../services/database_helper.dart';
-// ignore: unused_import
 import 'register_patient_screen.dart';
+import 'patient_detail_screen.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -583,10 +583,10 @@ class _PatientsScreenState extends State<PatientsScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Patient details screen - Coming soon!'),
-                  backgroundColor: Color(0xFF00796B),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PatientDetailScreen(patient: patient),
                 ),
               );
             },

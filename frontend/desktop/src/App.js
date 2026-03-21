@@ -10,6 +10,7 @@ import PatientList from './pages/PatientList';
 import PatientDetail from './pages/PatientDetail';
 import NewPatientForm from './pages/NewPatientForm';
 import EncounterDetail from './pages/EncounterDetail';
+import NewEncounterForm from './pages/NewEncounterForm';
 import './App.css';
 
 function AppLayout({ children }) {
@@ -64,6 +65,16 @@ export default function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <PatientList />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/patients/:patientId/encounters/new"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <NewEncounterForm />
                 </AppLayout>
               </ProtectedRoute>
             }

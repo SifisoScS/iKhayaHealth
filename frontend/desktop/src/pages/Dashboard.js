@@ -17,16 +17,17 @@ function StatCard({ title, value, icon, color }) {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ patients: null, encounters: null, pendingSync: 0 });
+  const [stats, setStats] = useState({ patients: null, encounters: null, apiStatus: null });
   const [recentPatients, setRecentPatients] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [patientsRes, encountersRes] = await Promise.allSettled([
+        const [patientsRes, encountersRes, healthRes] = await Promise.allSettled([
           api.get('/api/patients?limit=5'),
           api.get('/api/encounters?limit=5'),
+          api.get('/health'),
         ]);
 
         if (patientsRes.status === 'fulfilled') {
@@ -35,6 +36,13 @@ export default function Dashboard() {
         }
         if (encountersRes.status === 'fulfilled') {
           setStats((s) => ({ ...s, encounters: encountersRes.value.data.count }));
+        }
+        if (healthRes.status === 'fulfilled') {
+          const h = healthRes.value.data;
+          const latency = h.db?.latency_ms != null ? `${h.db.latency_ms}ms` : null;
+          setStats((s) => ({ ...s, apiStatus: latency ? `Online (${latency})` : 'Online' }));
+        } else {
+          setStats((s) => ({ ...s, apiStatus: 'Unreachable' }));
         }
       } finally {
         setLoading(false);
@@ -53,7 +61,7 @@ export default function Dashboard() {
       <div className="stat-grid">
         <StatCard title="Total Patients" value={stats.patients} icon="👤" color="blue" />
         <StatCard title="Encounters" value={stats.encounters} icon="📋" color="green" />
-        <StatCard title="Pending Sync" value={stats.pendingSync} icon="⟳" color="yellow" />
+        <StatCard title="API Status" value={stats.apiStatus} icon="⟳" color={stats.apiStatus === 'Unreachable' ? 'red' : 'yellow'} />
       </div>
 
       <div className="card mt-4">
